@@ -1,4 +1,4 @@
-import customFetch from "../api/axios";
+import {customFetch} from "../api/axios";
 
 export const registerUserThunk = async (url, user, thunkAPI) => {
   try {

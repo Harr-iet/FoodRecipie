@@ -3,7 +3,8 @@ import { toast } from "react-toastify";
 import {
   addUserToLocalStorage,
   getUserFromLocalStorage,
-  removeUserFromLocalStorage,
+  addUserTokenToLocalStorage
+  // removeUserFromLocalStorage, 
 } from "../api/localStorage";
 import { loginUserThunk, registerUserThunk } from "./userThunk";
 
@@ -16,14 +17,14 @@ export const registerUser = createAsyncThunk(
   "user/registerUser",
   async (user, thunkAPI) => {
     console.log(user);
-    return registerUserThunk("/auth/register", user, thunkAPI);
+    return registerUserThunk("/register", user, thunkAPI);
   }
 );
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (user, thunkAPI) => {
-    return loginUserThunk("/auth/login", user, thunkAPI);
+    return loginUserThunk("/login", user, thunkAPI);
   }
 );
 
@@ -34,10 +35,7 @@ const userSlice = createSlice({
     storeUser: (state, { payload }) => {
       state.user = { ...payload };
     },
-    logoutUser: (state) => {
-      state.user = null;
-      removeUserFromLocalStorage();
-    },
+ 
   },
   extraReducers: (builder) => {
     builder
@@ -47,16 +45,14 @@ const userSlice = createSlice({
 
       .addCase(registerUser.fulfilled, (state, { payload }) => {
         state.isLoading = false;
-        const { data } = payload;
-        state.user = data;
-        addUserToLocalStorage(data);
-        toast.success(payload);
+        state.user = payload
+        console.log(payload.id);
+     
       })
       .addCase(registerUser.rejected, (state, { payload }) => {
         state.isLoading = false;
-        const { data } = payload;
-        console.log(data);
-        toast.error(data);
+        console.log(payload);
+
       })
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
@@ -64,7 +60,7 @@ const userSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, { payload }) => {
         const { data } = payload;
         state.isLoading = false;
-        state.user = data;
+        state.user = payload;
         addUserToLocalStorage(data);
         toast.success(`Welcome back ${data.firstName}`);
       })
